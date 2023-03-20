@@ -1,12 +1,14 @@
 import fastify from "fastify";
 import dotenv from "dotenv";
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
 import sensible from "@fastify/sensible";
 import { PrismaClient } from "@prisma/client";
 dotenv.config();
 
 const app = fastify();
 app.register(sensible);
+app.register(cookie, { secret: process.env.COOKIE_SECRET });
 app.register(cors, {
   origin: process.env.CLIENT_URL,
   credentials: true,
@@ -50,6 +52,32 @@ app.get("/posts/:id", async (req, res) => {
         },
       },
     })
+  );
+});
+
+app.post("/posts/:id/comments", async (req, res) => {
+  if (req.body.message === "" || req.body.message == null) {
+    return res.send(app.httpErrors.badRequest("Message is required"));
+  }
+
+  return await commitToDb(
+    prisma.comment
+      .create({
+        data: {
+          message: req.body.message,
+          userId: req.cookies.userId,
+          parentId: req.body.parentId,
+          postId: req.params.id,
+        },
+        select: COMMENT_SELECT_FIELDS,
+      })
+      .then((comment) => {
+        return {
+          ...comment,
+          likeCount: 0,
+          likedByMe: false,
+        };
+      })
   );
 });
 

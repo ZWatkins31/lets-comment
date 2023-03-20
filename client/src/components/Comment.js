@@ -40,14 +40,22 @@ export function Comment({ id, message, user, createdAt }) {
               areChildrenHidden ? "hide" : ""
             }`}
           >
-            <button className="collapse-line" aria-label="Hide Replies" />
+            <button
+              className="collapse-line"
+              aria-label="Hide Replies"
+              onClick={() => {
+                setAreChildrenHidden(true);
+              }}
+            />
             <div className="nested-comments">
               <CommentList comments={childComments} />
             </div>
           </div>
           <button
             className={`btn mt-1 ${!areChildrenHidden} ? "hide" : ""`}
-            onClick={setAreChildrenHidden(false)}
+            onClick={() => {
+              setAreChildrenHidden(false);
+            }}
           >
             Show Replies
           </button>
