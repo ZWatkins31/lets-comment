@@ -2,9 +2,14 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Regular.ttf');
+}
+
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Poppins", Helvetica, sans-serif;
   line-height: 1.4;
 }
 
@@ -198,4 +203,38 @@ button {
 
 .btn[disabled] {
   --color: hsl(var(--hue), 20%, 74%);
+}
+
+.title {
+  letter-spacing: 2px;
+  color:hsl(235, 100%, 60%);
+  font-size: 50px;
+}
+
+.hero {
+  /* background-color: red; */
+  text-align: center;
+}
+
+a {
+  /* text-decoration: none; */
+  color: hsl(0, 100%, 67%);
+}
+
+.add-btn {
+  --hue: 235;
+  --color: hsl(var(--hue), 100%, 67%);
+  padding: .75em 1.25em;
+  background: var(--color);
+  border: none;
+  color: white;
+  border-radius: .5em;
+  font-size: .875em;
+  cursor: pointer;
+  /* display: flex; */
+}
+
+.add-btn span {
+  padding-right: 6px;
+  scale: 1.125;
 }
