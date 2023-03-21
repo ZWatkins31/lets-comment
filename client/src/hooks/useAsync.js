@@ -15,7 +15,6 @@ export function useAsyncFn(func, dependencies = []) {
 }
 
 function useAsyncInternal(func, dependencies, initialLoading = false) {
-  // different state variables depending on the state of the request
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState();
   const [value, setValue] = useState();
