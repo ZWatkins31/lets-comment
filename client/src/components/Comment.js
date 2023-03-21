@@ -4,7 +4,7 @@ import { FaEdit, FaHeart, FaRegHeart, FaReply, FaTrash } from "react-icons/fa";
 import { CommentList } from "./CommentList";
 import { useState } from "react";
 import { useAsyncFn } from "../hooks/useAsync";
-import { createComment } from "../services/comments";
+import { createComment, updateComment } from "../services/comments";
 import { CommentForm } from "./CommentForm";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -13,11 +13,17 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export function Comment({ id, message, user, createdAt }) {
-  const { post, getReplies, createLocalComment } = usePost();
+  const { post, getReplies, createLocalComment, updateLocalComment } =
+    usePost();
+
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
+
   const [isReplying, setIsReplying] = useState(false);
   const createCommentFn = useAsyncFn(createComment);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const updateCommentFn = useAsyncFn(updateComment);
 
   function onCommentReply(message) {
     return createCommentFn
@@ -25,6 +31,16 @@ export function Comment({ id, message, user, createdAt }) {
       .then((comment) => {
         setIsReplying(false);
         createLocalComment(comment);
+      });
+  }
+
+  function onCommentUpdate(message) {
+    return updateCommentFn
+      .execute({ postId: post.id, message, id })
+      .then((comment) => {
+        setIsEditing(false);
+        // console.log(comment);
+        updateLocalComment(id, comment.message);
       });
   }
 
@@ -37,7 +53,17 @@ export function Comment({ id, message, user, createdAt }) {
             {dateFormatter.format(Date.parse(createdAt))}
           </span>
         </div>
-        <div className="message">{message}</div>
+        {isEditing ? (
+          <CommentForm
+            autoFocus
+            initialValue={message}
+            onSubmit={onCommentUpdate}
+            loading={updateCommentFn.loading}
+            error={updateCommentFn.error}
+          />
+        ) : (
+          <div className="message">{message}</div>
+        )}
         <div className="footer">
           <IconButton Icon={FaHeart} aria-label="Like">
             2
@@ -48,7 +74,12 @@ export function Comment({ id, message, user, createdAt }) {
             onClick={() => setIsReplying((prev) => !prev)}
             isActive={isReplying}
           />
-          <IconButton Icon={FaEdit} aria-label="Edit" />
+          <IconButton
+            Icon={FaEdit}
+            aria-label={isEditing ? "Cancel Edit" : "Edit"}
+            onClick={() => setIsEditing((prev) => !prev)}
+            isActive={isEditing}
+          />
           <IconButton Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
       </div>

@@ -46,6 +46,8 @@ const COMMENT_SELECT_FIELDS = {
   },
 };
 
+/////////////////// GET ALL POSTS HANDLER ///////////////////
+
 app.get("/posts", async (req, res) => {
   return await commitToDb(
     prisma.post.findMany({
@@ -56,6 +58,8 @@ app.get("/posts", async (req, res) => {
     })
   );
 });
+
+/////////////////// GET SINGLE POSTS HANDLER ///////////////////
 
 app.get("/posts/:id", async (req, res) => {
   return await commitToDb(
@@ -77,7 +81,10 @@ app.get("/posts/:id", async (req, res) => {
   );
 });
 
+/////////////////// CREATE HANDLER ///////////////////
+
 app.post("/posts/:id/comments", async (req, res) => {
+  // error check: message required
   if (req.body.message === "" || req.body.message == null) {
     return res.send(app.httpErrors.badRequest("Message is required"));
   }
@@ -94,6 +101,69 @@ app.post("/posts/:id/comments", async (req, res) => {
     })
   );
 });
+
+/////////////////// EDIT HANDLER ///////////////////
+
+app.put("/posts/:postId/comments/:commentId", async (req, res) => {
+  // error check: message required
+  if (req.body.message === "" || req.body.message == null) {
+    return res.send(app.httpErrors.badRequest("Message is required"));
+  }
+
+  // error check: user trying to edit comment matches the comment creator
+  // only the creator of the comment should be able to edit the comment
+  // get userId for the current comment:
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+
+  // if userId does not match the userId saved in the cookies, send error message
+  if (userId !== req.cookies.userId) {
+    return res.send(
+      app.httpErrors.unauthorized(
+        "You do not have permission to edit this message"
+      )
+    );
+  }
+
+  return await commitToDb(
+    prisma.comment.update({
+      where: { id: req.params.commentId },
+      data: { message: req.body.message },
+      select: { message: true },
+    })
+  );
+});
+
+/////////////////// DELETE HANDLER ///////////////////
+
+app.delete("/posts/:postId/comments/:commentId", async (req, res) => {
+  // error check: user trying to delete comment matches the comment creator
+  // only the creator of the comment should be able to delete the comment
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+
+  // if userId does not match the userId saved in the cookies, send error message
+  if (userId !== req.cookies.userId) {
+    return res.send(
+      app.httpErrors.unauthorized(
+        "You do not have permission to delete this message"
+      )
+    );
+  }
+
+  return await commitToDb(
+    prisma.comment.delete({
+      where: { id: req.params.commentId },
+      select: { id: true },
+    })
+  );
+});
+
+//////////////
 
 // Helper function to handle errors
 async function commitToDb(promise) {
