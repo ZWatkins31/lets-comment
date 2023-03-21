@@ -7,13 +7,44 @@ import { PrismaClient } from "@prisma/client";
 dotenv.config();
 
 const app = fastify();
+
 app.register(sensible);
 app.register(cookie, { secret: process.env.COOKIE_SECRET });
 app.register(cors, {
   origin: process.env.CLIENT_URL,
   credentials: true,
 });
+
+// This hook: everytime we make a request, it's going to set the cookie on our browser to the user id of this current user, so we have the same information on our server and browser
+// basically allows us to fake that we're logged in as a specific user without actually having to write user auth code
+app.addHook("onRequest", (req, res, done) => {
+  if (req.cookies.userId !== CURRENT_USER_ID) {
+    req.cookies.userId = CURRENT_USER_ID;
+    res.clearCookie("userId");
+    res.setCookie("userId", CURRENT_USER_ID);
+  }
+  done();
+});
+
 const prisma = new PrismaClient();
+
+// getting the first user with the "Zach", getting this specific user's id, and setting this user id to CURRENT_USER_ID
+const CURRENT_USER_ID =
+  // this line determines the user. Change "name" to switch user
+  (await prisma.user.findFirst({ where: { name: "Zach" } })).id;
+
+const COMMENT_SELECT_FIELDS = {
+  id: true,
+  message: true,
+  parentId: true,
+  createdAt: true,
+  user: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+};
 
 app.get("/posts", async (req, res) => {
   return await commitToDb(
@@ -38,16 +69,7 @@ app.get("/posts/:id", async (req, res) => {
             createdAt: "desc",
           },
           select: {
-            id: true,
-            message: true,
-            parentId: true,
-            createdAt: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+            ...COMMENT_SELECT_FIELDS,
           },
         },
       },
@@ -61,23 +83,15 @@ app.post("/posts/:id/comments", async (req, res) => {
   }
 
   return await commitToDb(
-    prisma.comment
-      .create({
-        data: {
-          message: req.body.message,
-          userId: req.cookies.userId,
-          parentId: req.body.parentId,
-          postId: req.params.id,
-        },
-        select: COMMENT_SELECT_FIELDS,
-      })
-      .then((comment) => {
-        return {
-          ...comment,
-          likeCount: 0,
-          likedByMe: false,
-        };
-      })
+    prisma.comment.create({
+      data: {
+        message: req.body.message,
+        userId: req.cookies.userId,
+        parentId: req.body.parentId,
+        postId: req.params.id,
+      },
+      select: COMMENT_SELECT_FIELDS,
+    })
   );
 });
 

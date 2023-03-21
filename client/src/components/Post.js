@@ -12,6 +12,7 @@ export function Post() {
     execute: createCommentFn,
   } = useAsyncFn(createComment);
 
+  // creates comment on server, server sends comment back to us, and then we create the comment locally as well
   function onCommentCreate(message) {
     return createCommentFn({ postId: post.id, message }).then(
       createLocalComment
