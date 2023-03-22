@@ -232,9 +232,70 @@ a {
   font-size: .875em;
   cursor: pointer;
   /* display: flex; */
+  text-decoration: none;
+}
+
+.cancle-btn {
+  --hue: 235;
+  --color: hsl(var(--hue), 100%, 67%);
+  padding: .75em 1.25em;
+  background: hsl(0, 100%, 67%);
+  border: none;
+  color: white;
+  border-radius: .5em;
+  font-size: .875em;
+  cursor: pointer;
+  /* display: flex; */
+  text-decoration: none;
 }
 
 .add-btn span {
   padding-right: 6px;
   scale: 1.125;
 }
+
+.post-form {
+  display: flex;
+  /* background-color: rgb(255, 119, 0); */
+  height: 500px;
+}
+
+.form-input-title {
+  width: 800px;
+  height: 30px;
+  /* background-color: blue; */
+
+}
+
+.form-input-body {
+  width: 800px;
+  height: 200px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  /* background-color: blue; */
+}
+
+.form-input input {
+  width: 100%;
+  height: 100%;
+  border-radius: .5em;
+  padding: .5em;
+  font-size: inherit;
+  font-family: inherit;
+  border: 2px solid hsl(235, 50%, 74%);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.form-input textarea {
+  width: 100%;
+  height: 100%;
+  border-radius: .5em;
+  padding: .5em;
+  font-size: inherit;
+  font-family: inherit;
+  border: 2px solid hsl(235, 50%, 74%);
+  line-height: 1.4;
+  text-align: left;
+}
+

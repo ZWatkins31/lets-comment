@@ -11,6 +11,7 @@ export function CommentForm({
 
   function handleSubmit(e) {
     e.preventDefault();
+    // console.log(message);
     onSubmit(message).then(() => setMessage(""));
   }
 

@@ -1,6 +1,7 @@
 import { makeRequest } from "./makeRequests";
 
 export function createComment({ postId, message, parentId }) {
+  // console.log(postId, message, "create comment");
   return makeRequest(`posts/${postId}/comments`, {
     method: "POST",
     data: { message, parentId },

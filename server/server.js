@@ -59,6 +59,19 @@ app.get("/posts", async (req, res) => {
   );
 });
 
+/////////////////// CREATE POST HANDLER ///////////////////
+
+app.post("/posts", async (req, res) => {
+  return await commitToDb(
+    prisma.post.create({
+      data: {
+        body: req.body.body,
+        title: req.body.title,
+      },
+    })
+  );
+});
+
 /////////////////// GET SINGLE POSTS HANDLER ///////////////////
 
 app.get("/posts/:id", async (req, res) => {
@@ -212,8 +225,6 @@ app.post("/posts/:postId/comments/:commentId/toggleLike", async (req, res) => {
     });
   }
 });
-
-/////////////////// CREATE POST HANDLER ///////////////////
 
 ///////////////////
 

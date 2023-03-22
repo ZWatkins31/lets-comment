@@ -23,12 +23,12 @@ export default function PostList() {
           </h3>
         );
       })}
-      <button className="add-btn">
+      <a className="add-btn" href="/posts/new">
         <span>
           <FaPlus />
         </span>
         Add Post
-      </button>
+      </a>
     </div>
   );
 }
